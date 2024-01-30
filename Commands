@@ -1,0 +1,42 @@
+#1)What are the average scores for each capability on both the Gemini Ultra and GPT-4 models?
+select capabilityname  ,round( avg(scoregemini) )as avg_scoregemini , round(avg(scoregpt4)) as avg_scoregpt from capabilities
+inner join Benchmarks
+on
+Capabilities.Capabilityid=Benchmarks.Capabilityid
+group by capabilityname;
+
+#2)Which benchmarks does Gemini Ultra outperform GPT-4 in terms of scores?
+select benchmarkname from Benchmarks
+where scoregemini > scoregpt4;
+
+#3)What are the highest scores achieved by Gemini Ultra and GPT-4 for each benchmark in the Image capability?
+select   benchmarkname , max(scoregemini) as max_gemini , max(scoregpt4) as max_gpt4 
+from  Benchmarks
+where capabilityid=5
+group by benchmarkname;
+
+#4)Calculate the percentage improvement of Gemini Ultra over GPT-4 for each benchmark?
+select  benchmarkname , round(((scoregemini-scoregpt4)/scoregpt4*100),0) as percentage_improvement from Benchmarks
+where scoregpt4 is not null
+order by percentage_improvement ;
+
+#5)Retrieve the benchmarks where both models scored above the average for their respective models?
+select benchmarkname ,scoregemini,scoregpt4  from Benchmarks
+where scoregemini >(select avg(scoregemini)   from Benchmarks)
+and  scoregpt4>(select avg(scoregpt4) from Benchmarks);
+
+#8) Retrieve the rankings for each capability based on Gemini Ultra scores?
+select capabilityname , scoregemini , DENSE_RANK() OVER(ORDER BY scoregemini  DESC) as rnk from Capabilities
+inner join Benchmarks
+on
+Capabilities.capabilityid=Benchmarks.capabilityid;
+
+#9)Convert the Capability and Benchmark names to uppercase?
+select upper(capabilityname) as capability_name  , upper(benchmarkname) as benchmark_name  from Capabilities
+inner join Benchmarks
+on  
+Capabilities.capabilityid=Benchmarks.capabilityid;
+
+#10) Can you provide the benchmarks along with their descriptions in a concatenated format?
+select concat(benchmarkname ," " , description ) as benchmarkname 
+from benchmarks;
